@@ -19,32 +19,40 @@ import {
 
 type SignInFormData = {
 	email: string;
+	username: string;
+	fullname: string;
 	password: string;
 };
 
-const signInFormSchema = yup.object().shape({
+const signUpFormSchema = yup.object().shape({
 	email: yup.string().required('E-mail obrigatório').email('E-mail inválido'),
-	password: yup.string().required('Senha obrigatória')
+	password: yup.string().required('Senha obrigatória'),
+	username: yup.string().required('Nome de usuário obrigatório'),
+	fullname: yup.string().required('Nome completo obrigatório')
+
 });
 
 
 
-export default function Signin() {
+export default function Signup() {
 
 	const { register, handleSubmit, formState } = useForm({
-		resolver: yupResolver(signInFormSchema)
+		resolver: yupResolver(signUpFormSchema)
 	})
 	const { errors } = formState
-	const { signIn } = useAuth()
+	const { signUp } = useAuth()
 	const handleSignIn: SubmitHandler<SignInFormData> = async (values) => {
-		await signIn(values); // try catchia
+		const errors = await signUp(values);
+		if (errors) {
+			console.log('deu b.o', errors) // melhorar o visual error handling
+		}
 	}
 
 
 	return (
 		<>
 			<Head>
-				<title>Jiraya - Entrar</title>
+				<title>Jiraya - Registrar-se</title>
 			</Head>
 			<AuthenticateLayout
 			>
@@ -68,7 +76,17 @@ export default function Signin() {
 
 						}}
 					>
-
+						<Button
+							mb={3}
+							bg="gray.900"
+							_hover={{ bg: "gray.700" }}
+							size="lg"
+							leftIcon={<AiFillGithub />}
+							iconSpacing="6"
+							onClick={() => { signInSocial('github') }}
+						>
+							Registrar-se com Github
+						</Button>
 
 						{/* <Button
 							mb={6}
@@ -78,31 +96,30 @@ export default function Signin() {
 							leftIcon={<FcGoogle />}
 							iconSpacing="6"
 						>
-							Entrar com Google
+							Registrar-se com Google
 						</Button> */}
 
 						<Stack spacing="4">
-
-
-							<Button
-								bg="gray.900"
-								_hover={{ bg: "gray.700" }}
-								size="lg"
-								leftIcon={<AiFillGithub />}
-								iconSpacing="6"
-								onClick={() => { signInSocial('github') }}
-							>
-								Entrar com Github
-							</Button>
-
+							<Input
+								name="fullname"
+								placeholder="Nome completo"
+								type="text"
+								{...register('fullname')}
+								error={errors.username}
+							/>
 							<Input
 								name="email"
 								placeholder="E-mail"
 								type="email"
-								{...register('email', {
-									required: "E-mail é requirido"
-								})}
+								{...register('email')}
 								error={errors.email}
+							/>
+							<Input
+								name="username"
+								placeholder="Nome de usuário"
+								type="text"
+								{...register('username')}
+								error={errors.username}
 							/>
 							<Input
 								name="password"
@@ -121,12 +138,11 @@ export default function Signin() {
 							size="lg"
 							isLoading={formState.isSubmitting}
 						>
-							Entrar
+							Registrar-se
 						</Button>
-
-						<Link href="/forgot" prefetch>
+						<Link href="/signin">
 							<Button
-								mt={1}
+								mt={6}
 								variant="solid"
 								bg="transparent"
 								_hover={{ bg: "transparent" }}
@@ -134,16 +150,7 @@ export default function Signin() {
 								_active={{ bg: "transparent" }}
 								size="lg"
 							>
-								Esqueceu a senha?
-							</Button>
-						</Link>
-						<Link href="/signup" prefetch>
-							<Button
-								mt={6}
-								colorScheme="green"
-								size="lg"
-							>
-								Criar Conta
+								Já tenho uma conta
 							</Button>
 						</Link>
 					</Flex>

@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
-import { Flex, Button, Stack } from '@chakra-ui/react'
+import { Flex, Button, Stack, FlexProps } from '@chakra-ui/react'
 
-interface AuthenticateProps {
+interface AuthenticateProps extends FlexProps {
 	children: ReactNode
 }
 
@@ -15,9 +15,9 @@ export function AuthenticateLayoutRight({ children }: AuthenticateProps) {
 }
 
 
-export function AuthenticateLayoutLeft({ children }: AuthenticateProps) {
+export function AuthenticateLayoutLeft({ children, ...rest }: AuthenticateProps) {
 	return (
-		<Flex flex="1" direction="column" px="6">
+		<Flex flex="1" direction="column" px="6" {...rest}>
 			{children}
 		</Flex>
 	)

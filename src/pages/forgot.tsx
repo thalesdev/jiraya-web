@@ -6,9 +6,6 @@ import { Input } from '../components/Form/Input'
 import { yupResolver } from '@hookform/resolvers/yup'
 import Head from 'next/head'
 import * as yup from 'yup';
-import { AiFillGithub } from 'react-icons/ai'
-import { FcGoogle } from 'react-icons/fc'
-import { signIn as signInSocial } from 'next-auth/client'
 import Link from 'next/link'
 
 import { useAuth } from "../hooks/useAuth"
@@ -17,34 +14,35 @@ import {
 } from "../components/Layout/Authenticate"
 
 
-type SignInFormData = {
+type ForgotFormData = {
 	email: string;
-	password: string;
 };
 
-const signInFormSchema = yup.object().shape({
+const forgotFormSchema = yup.object().shape({
 	email: yup.string().required('E-mail obrigatório').email('E-mail inválido'),
-	password: yup.string().required('Senha obrigatória')
 });
 
 
 
-export default function Signin() {
+export default function Forgot() {
 
 	const { register, handleSubmit, formState } = useForm({
-		resolver: yupResolver(signInFormSchema)
+		resolver: yupResolver(forgotFormSchema)
 	})
 	const { errors } = formState
-	const { signIn } = useAuth()
-	const handleSignIn: SubmitHandler<SignInFormData> = async (values) => {
-		await signIn(values); // try catchia
+	const { forgot } = useAuth()
+	const handleForgot: SubmitHandler<ForgotFormData> = async (values) => {
+		const errors = await forgot(values);
+		if (errors) {
+			console.log('deu b.o', errors) // melhorar o visual error handling
+		}
 	}
 
 
 	return (
 		<>
 			<Head>
-				<title>Jiraya - Entrar</title>
+				<title>Jiraya - Recuperar Senha</title>
 			</Head>
 			<AuthenticateLayout
 			>
@@ -63,55 +61,23 @@ export default function Signin() {
 						p="8"
 						borderRadius={8}
 						flexDir="column"
-						onSubmit={handleSubmit(handleSignIn)}
+						onSubmit={handleSubmit(handleForgot)}
 						onKeyPress={() => {
 
 						}}
 					>
 
-
-						{/* <Button
-							mb={6}
-							bg="gray.900"
-							_hover={{ bg: "gray.700" }}
-							size="lg"
-							leftIcon={<FcGoogle />}
-							iconSpacing="6"
-						>
-							Entrar com Google
-						</Button> */}
-
-						<Stack spacing="4">
-
-
-							<Button
-								bg="gray.900"
-								_hover={{ bg: "gray.700" }}
-								size="lg"
-								leftIcon={<AiFillGithub />}
-								iconSpacing="6"
-								onClick={() => { signInSocial('github') }}
-							>
-								Entrar com Github
-							</Button>
-
+						<Stack spacing="6">
+							<Text>
+								Um código será enviado para seu email para recuperar sua senha.
+							</Text>
 							<Input
 								name="email"
 								placeholder="E-mail"
 								type="email"
-								{...register('email', {
-									required: "E-mail é requirido"
-								})}
+								{...register('email')}
 								error={errors.email}
 							/>
-							<Input
-								name="password"
-								placeholder="Senha"
-								type="password"
-								{...register('password')}
-								error={errors.password}
-							/>
-
 						</Stack>
 
 						<Button
@@ -121,12 +87,24 @@ export default function Signin() {
 							size="lg"
 							isLoading={formState.isSubmitting}
 						>
-							Entrar
+							Enviar Código
 						</Button>
-
-						<Link href="/forgot" prefetch>
+						<Link href="/recovery">
 							<Button
-								mt={1}
+								mt={4}
+								variant="solid"
+								bg="gray.900"
+								_hover={{ bg: "transparent" }}
+								_focus={{ bg: "transparent" }}
+								_active={{ bg: "transparent" }}
+								size="lg"
+							>
+								Já tenho um código
+							</Button>
+						</Link>
+						<Link href="/signin">
+							<Button
+								mt={8}
 								variant="solid"
 								bg="transparent"
 								_hover={{ bg: "transparent" }}
@@ -134,16 +112,7 @@ export default function Signin() {
 								_active={{ bg: "transparent" }}
 								size="lg"
 							>
-								Esqueceu a senha?
-							</Button>
-						</Link>
-						<Link href="/signup" prefetch>
-							<Button
-								mt={6}
-								colorScheme="green"
-								size="lg"
-							>
-								Criar Conta
+								Lembro minha senha
 							</Button>
 						</Link>
 					</Flex>

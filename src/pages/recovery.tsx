@@ -6,9 +6,6 @@ import { Input } from '../components/Form/Input'
 import { yupResolver } from '@hookform/resolvers/yup'
 import Head from 'next/head'
 import * as yup from 'yup';
-import { AiFillGithub } from 'react-icons/ai'
-import { FcGoogle } from 'react-icons/fc'
-import { signIn as signInSocial } from 'next-auth/client'
 import Link from 'next/link'
 
 import { useAuth } from "../hooks/useAuth"
@@ -17,34 +14,40 @@ import {
 } from "../components/Layout/Authenticate"
 
 
-type SignInFormData = {
-	email: string;
+type RecoveryFormData = {
+	code: string;
 	password: string;
+	password_confirmation: string;
 };
 
-const signInFormSchema = yup.object().shape({
-	email: yup.string().required('E-mail obrigatório').email('E-mail inválido'),
-	password: yup.string().required('Senha obrigatória')
+const recoveryFormSchema = yup.object().shape({
+	code: yup.string().required('Código é obrigatório'),
+	password: yup.string().required('Senha é obrigatória'),
+	password_confirmation: yup.string().required('Confirmação de senha é obrigatória')
+		.oneOf([yup.ref('password'), null], 'Senhas devem ser iguais')
 });
 
 
 
-export default function Signin() {
+export default function Recovery() {
 
 	const { register, handleSubmit, formState } = useForm({
-		resolver: yupResolver(signInFormSchema)
+		resolver: yupResolver(recoveryFormSchema)
 	})
 	const { errors } = formState
-	const { signIn } = useAuth()
-	const handleSignIn: SubmitHandler<SignInFormData> = async (values) => {
-		await signIn(values); // try catchia
+	const { recovery } = useAuth()
+	const handleForgot: SubmitHandler<RecoveryFormData> = async (values) => {
+		const errors = await recovery(values);
+		if (errors) {
+			console.log('deu b.o', errors) // melhorar o visual error handling
+		}
 	}
 
 
 	return (
 		<>
 			<Head>
-				<title>Jiraya - Entrar</title>
+				<title>Jiraya - Recuperar Senha</title>
 			</Head>
 			<AuthenticateLayout
 			>
@@ -63,46 +66,19 @@ export default function Signin() {
 						p="8"
 						borderRadius={8}
 						flexDir="column"
-						onSubmit={handleSubmit(handleSignIn)}
+						onSubmit={handleSubmit(handleForgot)}
 						onKeyPress={() => {
 
 						}}
 					>
 
-
-						{/* <Button
-							mb={6}
-							bg="gray.900"
-							_hover={{ bg: "gray.700" }}
-							size="lg"
-							leftIcon={<FcGoogle />}
-							iconSpacing="6"
-						>
-							Entrar com Google
-						</Button> */}
-
 						<Stack spacing="4">
-
-
-							<Button
-								bg="gray.900"
-								_hover={{ bg: "gray.700" }}
-								size="lg"
-								leftIcon={<AiFillGithub />}
-								iconSpacing="6"
-								onClick={() => { signInSocial('github') }}
-							>
-								Entrar com Github
-							</Button>
-
 							<Input
-								name="email"
-								placeholder="E-mail"
-								type="email"
-								{...register('email', {
-									required: "E-mail é requirido"
-								})}
-								error={errors.email}
+								name="code"
+								placeholder="Código"
+								type="code"
+								{...register('code')}
+								error={errors.code}
 							/>
 							<Input
 								name="password"
@@ -111,7 +87,13 @@ export default function Signin() {
 								{...register('password')}
 								error={errors.password}
 							/>
-
+							<Input
+								name="password_confirmation"
+								placeholder="Confirmação de senha"
+								type="password"
+								{...register('password_confirmation')}
+								error={errors.password_confirmation}
+							/>
 						</Stack>
 
 						<Button
@@ -121,12 +103,12 @@ export default function Signin() {
 							size="lg"
 							isLoading={formState.isSubmitting}
 						>
-							Entrar
+							Redifinir Senha
 						</Button>
 
-						<Link href="/forgot" prefetch>
+						<Link href="/forgot">
 							<Button
-								mt={1}
+								mt={8}
 								variant="solid"
 								bg="transparent"
 								_hover={{ bg: "transparent" }}
@@ -134,16 +116,7 @@ export default function Signin() {
 								_active={{ bg: "transparent" }}
 								size="lg"
 							>
-								Esqueceu a senha?
-							</Button>
-						</Link>
-						<Link href="/signup" prefetch>
-							<Button
-								mt={6}
-								colorScheme="green"
-								size="lg"
-							>
-								Criar Conta
+								Voltar
 							</Button>
 						</Link>
 					</Flex>
