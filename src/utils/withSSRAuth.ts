@@ -18,7 +18,7 @@ export function withSSRAuth<P>(fn: GetServerSideProps<P>, options?: WithSSRAuthO
 		if (!token) {
 			return {
 				redirect: {
-					destination: '/',
+					destination: '/signin',
 					permanent: false,
 				}
 			}
@@ -53,7 +53,7 @@ export function withSSRAuth<P>(fn: GetServerSideProps<P>, options?: WithSSRAuthO
 
 				return {
 					redirect: {
-						destination: '/',
+						destination: '/signin',
 						permanent: false,
 					}
 				}

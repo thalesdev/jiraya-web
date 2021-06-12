@@ -33,7 +33,7 @@ export function signOut() {
 
 	authChannel.postMessage('signOut');
 
-	// Router.push('/')
+	Router.push('/signin')
 }
 
 
@@ -81,7 +81,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 				password,
 			})
 
-			console.log('response', response)
 
 			const { access: { token }, refresh: { token: refreshToken } } = response.data;
 
@@ -101,7 +100,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
 			api.defaults.headers['Authorization'] = `Bearer ${token}`;
 
-			// Router.push('/dashboard'); // melhorar isso
+			Router.push('/');
 		} catch (err) {
 			console.log(err); // melhorar os erros
 		}
